@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-predictive-maintenance
+  labels:
+    app: iot-predictive-maintenance
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: iot-predictive-maintenance
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: iot-predictive-maintenance
+    spec:
+      containers:
+      - name: sensor-processor
+        image: rithwik8/iot-predictive-maintenance:v1.0.0
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        env:
+        - name: DEVICE_ID
+          valueFrom:
+            configMapKeyRef:
+              name: iot-app-config
+              key: DEVICE_ID
+        - name: IOTHUB_DEVICE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: iot-app-secret
+              key: IOTHUB_DEVICE_CONNECTION_STRING
